@@ -1,6 +1,6 @@
 addon.name      = 'ScentHound';
 addon.author    = 'Thorny';
-addon.version   = '1.02';
+addon.version   = '1.03';
 addon.desc      = 'Tracks monster and NPC spawns and provides alerts/onscreen indications.';
 addon.link      = 'https://ashitaxi.com/';
 

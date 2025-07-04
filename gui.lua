@@ -6,8 +6,10 @@ local trackSelection = -1;
 local zoneSelection = -1;
 local sortedTrack = T{};
 local sortedZone = T{};
+local searchResults = T{};
 local gui = {};
 local identifierOptions = T { 'Index (Decimal)', 'Index (Hex)', 'Id (Decimal)', 'Id (Hex)' };
+local searchInput = T { '' };
 
 local function sortPredicate(a,b)
     if (a.Name ~= b.Name) then
@@ -53,6 +55,25 @@ function gui:SetZone(zone, subZone)
     trackSelection = -1;
     zoneSelection = -1;
     RebuildTracking();
+    gui:UpdateSearch();
+end
+
+function gui:UpdateSearch()
+    searchResults = T{};
+    if searchInput[1] == '' then
+        searchResults = sortedZone;
+    else
+        for _, entry in ipairs(sortedZone) do
+            if string.find(string.lower(entry:ToString()), string.lower(searchInput[1]), 1, true) then
+                searchResults:append(entry);
+            end
+        end
+        table.sort(searchResults, sortPredicate);
+    end
+
+    if zoneSelection > #searchResults then
+        zoneSelection = -1;
+    end
 end
 
 function gui:Show()
@@ -143,28 +164,40 @@ function gui:Tick()
             end
 
             if imgui.BeginTabItem('Zone List') then
+                imgui.Text(string.format('Search (%i)', #searchResults));
+                imgui.SetNextItemWidth(-1);
+                if imgui.InputText('##ScentHoundSearchInput', searchInput, 48) then
+                    gui:UpdateSearch();
+                end
+
                 if imgui.BeginChild('ZoneList', { 360, 340 }, true) then
-                    for index,entry in ipairs(sortedZone) do
-                        if imgui.Selectable(entry:ToString(), index == zoneSelection) then
-                            zoneSelection = index;
-                        end
-                        if (imgui.IsItemHovered() and imgui.IsMouseDoubleClicked(0)) then
-                            if gSettings.Monitored[entry.Id] ~= entry then
-                                gSettings.Monitored[entry.Id] = entry;
-                                gUpdate = true;
-                                gUpdateTimer = os.clock() + 5;
-                                print(chat.header('ScentHound') .. chat.message(string.format('%s added to tracking.', entry:ToString())));
-                                RebuildTracking();
-                            else
-                                print(chat.header('ScentHound') .. chat.error(string.format('%s is already being tracked.', entry:ToString())));
+                    local clipper = ImGuiListClipper.new();
+                    clipper:Begin(#searchResults, -1);
+                    while clipper:Step() do
+                        for i = clipper.DisplayStart, clipper.DisplayEnd - 1 do
+                            local entry = searchResults[i + 1];
+                            if imgui.Selectable(entry:ToString(), i + 1 == zoneSelection) then
+                                zoneSelection = i + 1;
+                            end
+                            if (imgui.IsItemHovered() and imgui.IsMouseDoubleClicked(0)) then
+                                if gSettings.Monitored[entry.Id] ~= entry then
+                                    gSettings.Monitored[entry.Id] = entry;
+                                    gUpdate = true;
+                                    gUpdateTimer = os.clock() + 5;
+                                    print(chat.header('ScentHound') .. chat.message(string.format('%s added to tracking.', entry:ToString())));
+                                    RebuildTracking();
+                                else
+                                    print(chat.header('ScentHound') .. chat.error(string.format('%s is already being tracked.', entry:ToString())));
+                                end
                             end
                         end
                     end
+                    clipper:End();
                     imgui.EndChild();
                 end
                     
                 if zoneSelection ~= -1 then
-                    local entry = sortedZone[zoneSelection];
+                    local entry = searchResults[zoneSelection];
                     local buffer = { entry.Alias };
                     imgui.TextColored({ 1.0, 0.75, 0.55, 1.0 }, 'Alias');
                     if imgui.InputText(string.format('##ScentHoundAlias', entry.Id), buffer, 256) then
