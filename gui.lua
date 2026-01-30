@@ -67,7 +67,7 @@ function gui:Tick()
     if (imgui.Begin('ScentHound##Scenthound_MainWindow', isOpen, ImGuiWindowFlags_AlwaysAutoResize)) then
         if imgui.BeginTabBar('##ScentHoundTabBar', ImGuiTabBarFlags_NoCloseWithMiddleMouseButton) then
             if imgui.BeginTabItem('Active Tracking') then
-                if imgui.BeginChild('TrackList', { 360, 340 }, true) then
+                if imgui.BeginChild('TrackList', { 360, 340 }, ImGuiChildFlags_Borders) then
                     for index,entry in ipairs(sortedTrack) do
                         if imgui.Selectable(entry:ToString(), index == trackSelection) then
                             trackSelection = index;
@@ -143,7 +143,7 @@ function gui:Tick()
             end
 
             if imgui.BeginTabItem('Zone List') then
-                if imgui.BeginChild('ZoneList', { 360, 340 }, true) then
+                if imgui.BeginChild('ZoneList', { 360, 340 }, ImGuiChildFlags_Borders) then
                     for index,entry in ipairs(sortedZone) do
                         if imgui.Selectable(entry:ToString(), index == zoneSelection) then
                             zoneSelection = index;
@@ -233,6 +233,7 @@ function gui:Tick()
                     end
                     imgui.ShowHelp('Set delay between 0x16 packets. With multiple targets being tracked, they will rotate.');
                 end
+                imgui.EndTabItem();
             end
             imgui.EndTabBar();
         end
