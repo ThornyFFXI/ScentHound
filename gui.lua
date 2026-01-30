@@ -198,6 +198,7 @@ function gui:Tick()
                             gUpdateTimer = os.clock() + 5;
                         end
                     end
+                    imgui.EndCombo();
                 end
                 imgui.TextColored({ 1.0, 0.75, 0.55, 1.0 }, 'Alarm File');
                 local buffer = { gSettings.Sound };                
