@@ -1,6 +1,6 @@
 addon.name      = 'ScentHound';
 addon.author    = 'Thorny';
-addon.version   = '1.03';
+addon.version   = '1.04';
 addon.desc      = 'Tracks monster and NPC spawns and provides alerts/onscreen indications.';
 addon.link      = 'https://ashitaxi.com/';
 
@@ -32,6 +32,10 @@ local function TrySaveSettings(force)
         gUpdate = false;
     end
 end
+
+settings.register('settings', 'settings_update', function(newSettings)
+    gSettings = newSettings;
+end);
 
 ashita.events.register('load', 'load_cb', function ()
     local playerIndex = AshitaCore:GetMemoryManager():GetParty():GetMemberTargetIndex(0);
