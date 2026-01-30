@@ -237,8 +237,8 @@ function gui:Tick()
             end
             imgui.EndTabBar();
         end
-        imgui.End();
     end
+    imgui.End();
 end
 
 return gui;
