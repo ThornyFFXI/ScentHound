@@ -1,6 +1,6 @@
 addon.name      = 'ScentHound';
 addon.author    = 'Thorny';
-addon.version   = '1.06';
+addon.version   = '1.07';
 addon.desc      = 'Tracks monster and NPC spawns and provides alerts/onscreen indications.';
 addon.link      = 'https://ashitaxi.com/';
 
@@ -41,12 +41,14 @@ ashita.events.register('load', 'load_cb', function ()
     local playerIndex = AshitaCore:GetMemoryManager():GetParty():GetMemberTargetIndex(0);
     if playerIndex ~= 0 then
         --Initialize zone/subzone. Credit to atom0s for locating signature and offsets.
-        local zonePointer = ashita.memory.find('FFXiMain.dll', 0, '8B0D????????8B44240425FFFF00003B', 0x02, 0x00);
-        local pointer = ashita.memory.read_uint32(zonePointer);
+        local zonePointer = ashita.memory.find(0, 0, 'A1????????668B88????????668B90????????5152E8????????A3', 0x00, 0x00);
+        local offset1 = ashita.memory.read_uint32(zonePointer + 0x08);
+        local offset2 = ashita.memory.read_uint32(zonePointer + 0x0F);
+        local pointer = ashita.memory.read_uint32(zonePointer + 0x01);
         if (pointer ~= 0) then
-            pointer = ashita.memory.read_uint32(pointer + 0x04);
+            pointer = ashita.memory.read_uint32(pointer);
             if (pointer ~= 0) then
-                gui:SetZone(ashita.memory.read_uint32(pointer + 0x3C2E0), ashita.memory.read_uint16(pointer + 0x3C2EA));
+                gui:SetZone(ashita.memory.read_uint32(pointer + offset2), ashita.memory.read_uint16(pointer + offset1));
             end
         end
     end
